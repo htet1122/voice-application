@@ -1,0 +1,1 @@
+{"dependencies":{"express":"^4.19.2"},"description":"Myanmar Voice Application — Railway-deployable server version. Myanmar only, no credit system, no Telegram, no paid APIs.","engines":{"node":">=18"},"main":"server.js","name":"voice-application-server","private":true,"scripts":{"start":"node server.js"},"type":"commonjs","version":"0.1.0"}
