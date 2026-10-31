@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Voice Application Public — မြန်မာအသံဖြင့် စာဖတ်ပြခြင်း</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#eef3ef; --surface:#ffffff; --surface2:#f2f6f2; --ink:#15211a; --muted:#5b6b60;
+  --line:#d8e2d9; --green:#0e5c3a; --green2:#0a4530; --amber:#c98a1b; --amber-bg:#fff6dd;
+  --danger:#a3322a; --danger-bg:#fdecea; --ok:#0e5c3a; --focus:#1a7a4d;
+  --radius:14px; --shadow:0 1px 3px rgba(15,40,28,.08),0 8px 24px rgba(15,40,28,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0e1511; --surface:#16211b; --surface2:#1b2921; --ink:#eef5ef; --muted:#a8b8ad;
+  --line:#2a3d32; --green:#5cc493; --green2:#7bd4a8; --amber:#e8b44a; --amber-bg:#2b2410;
+  --danger:#ff9a90; --danger-bg:#3a1c19; --ok:#7bd4a8; --focus:#7bd4a8; --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3); }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Myanmar",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}
+a{color:var(--green)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:920px;margin:0 auto;padding:18px 16px 48px}
+.intro{margin:6px 0 14px}
+.intro h1{font-size:30px;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em}
+.intro p{margin:0;color:var(--muted);font-size:15px;max-width:640px}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px;padding:0;list-style:none}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600}
+.steps li b{color:var(--green);margin-right:5px}
+.tabs{display:flex;gap:8px;margin:16px 0 14px}
+.tab{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:13px 10px;font-weight:700;font-size:15px;min-height:52px}
+.tab[aria-selected="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+.tab .count{display:inline-block;min-width:22px;padding:1px 6px;border-radius:999px;background:var(--amber);color:#231a00;font-size:12px;margin-left:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card + .card{margin-top:14px}
+h2{font-size:19px;margin:0 0 8px;line-height:1.4}
+h3{font-size:16px;margin:18px 0 8px}
+.lead{color:var(--muted);margin:0 0 14px;font-size:14.5px}
+label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+.hint{font-weight:400;color:var(--muted);font-size:13px}
+select,textarea,input[type="text"],input[type="url"]{width:100%;border:1px solid var(--line);border-radius:11px;background:var(--surface2);padding:12px 13px;font-size:16px}
+select{min-height:52px}
+textarea{min-height:170px;resize:vertical;line-height:1.8}
+textarea:focus,select:focus,input:focus{outline:3px solid color-mix(in srgb,var(--focus) 30%,transparent);border-color:var(--focus)}
+.voice-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.voice-meta span{background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:13px}
+.voice-meta span b{color:var(--green)}
+.speed-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+input[type="range"]{width:100%;accent-color:var(--green);height:36px}
+.speed-val{font-weight:800;font-size:18px;min-width:64px;text-align:right}
+.counter{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px;margin-top:6px;flex-wrap:wrap}
+.counter .over{color:var(--danger);font-weight:700}
+.samples{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 13px;font-size:14px;font-weight:600;min-height:44px}
+.chip:active{transform:translateY(1px)}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:14px 18px;font-weight:800;font-size:16px;min-height:54px;flex:1 1 140px}
+.btn-primary{background:var(--green);color:#fff}
+.btn-ghost{background:var(--surface2);border:1px solid var(--line);color:var(--ink)}
+.btn-amber{background:var(--amber);color:#231a00}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--line)}
+.btn-small{flex:0 1 auto;min-height:44px;padding:9px 14px;font-size:14px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.progress{margin-top:14px;border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:var(--surface2);display:none}
+.progress.on{display:block}
+.progress .bar{height:9px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}
+.progress .bar i{display:block;height:100%;background:var(--green);width:0%}
+.notice{border-radius:11px;padding:12px 14px;font-size:14px;margin:12px 0;border:1px solid var(--line);background:var(--surface2)}
+.notice.warn{background:var(--amber-bg);border-color:#e6cf8f}
+.notice.err{background:var(--danger-bg);border-color:#e5a9a3;color:inherit}
+.notice.ok{background:#eaf5ee;border-color:#b9dcc8}
+@media (prefers-color-scheme: dark){.notice.ok{background:#16291f;border-color:#2c5240}}
+.notice p{margin:4px 0}
+.notice strong{font-size:14.5px}
+.clone-box{border-top:1px dashed var(--line);margin-top:20px;padding-top:6px}
+.rec-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.rec-row > div{flex:1 1 180px}
+.rec-status{font-size:14px;color:var(--muted);min-height:22px}
+audio{width:100%;margin-top:8px}
+.lib-item{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;background:var(--surface)}
+.lib-item h3{margin:0 0 4px;font-size:16px}
+.lib-item .meta{color:var(--muted);font-size:13px;margin:0 0 8px}
+.lib-item p.excerpt{margin:8px 0;color:var(--ink);font-size:14.5px;white-space:pre-wrap;word-break:break-word}
+.lib-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:20px;text-align:center;color:var(--muted);margin-top:12px}
+.plan{border-top:1px solid var(--line);margin-top:12px;padding-top:10px;font-size:14px}
+.plan table{width:100%;border-collapse:collapse;font-size:14px}
+.plan th,.plan td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+.blur-stage{position:relative;background:#111;border-radius:12px;overflow:hidden;margin-top:10px;min-height:180px;display:grid;place-items:center}
+.blur-stage img{max-width:100%;display:block;max-height:420px}
+.blur-box{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.18),0 0 0 2px rgba(0,0,0,.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(255,255,255,.06);touch-action:none;cursor:move;border-radius:6px}
+.blur-box .handle{position:absolute;right:-13px;bottom:-13px;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid var(--green);cursor:nwse-resize}
+.blur-box .tag{position:absolute;top:-28px;left:0;background:#111;color:#fff;font-size:12px;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.blur-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.seg-lang{display:flex;gap:8px;flex-wrap:wrap}
+.seg-lang button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:12px;font-weight:700;min-height:50px}
+.seg-lang button[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+footer{margin-top:22px;color:var(--muted);font-size:13.5px}
+footer p{margin:6px 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:560px){
+  .wrap{padding:14px 12px 40px}
+  .intro h1{font-size:26px}
+  .card{padding:15px}
+  .btn{flex:1 1 100%}
+  .btn-small{flex:1 1 45%}
+  .tab{font-size:14px;padding:11px 6px}
+}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="intro">
+    <h1>စာကို မြန်မာအသံနဲ့ ဖတ်ပြမယ်</h1>
+    <p>ဖုန်းထဲကနေပဲ — အသံရွေး၊ စာရိုက်၊ နားထောင်၊ သိမ်း။ အဆင့်လိုက် လုပ်သွားရုံပဲ။</p>
+    <ol class="steps">
+      <li><b>၁</b> အသံရွေး</li>
+      <li><b>၂</b> စာရိုက်</li>
+      <li><b>၃</b> နားထောင်</li>
+      <li><b>၄</b> သိမ်း / ဗီဒီယိုအစီအစဉ်</li>
+    </ol>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="အဓိက အပိုင်းများ">
+    <button class="tab" role="tab" id="tab-studio" aria-selected="true" aria-controls="panel-studio">Studio</button>
+    <button class="tab" role="tab" id="tab-link" aria-selected="false" aria-controls="panel-link">Link ဘာသာပြန်</button>
+    <button class="tab" role="tab" id="tab-library" aria-selected="false" aria-controls="panel-library">Library<span class="count" id="libCount">0</span></button>
+  </div>
+
+  <!-- STUDIO -->
+  <section class="card" id="panel-studio" role="tabpanel" aria-labelledby="tab-studio">
+    <h2>Studio — အသံထုတ်မယ်</h2>
+    <p class="lead">စာသား <b>၂၀,၀၀၀</b> လုံးအထိ ရိုက်လို့ရပါတယ်။ အမြန်နှုန်း <b>0.5x – 4x</b> အထိ ချိန်နိုင်ပါတယ်။</p>
+
+    <div class="notice warn" id="voiceWarn" hidden>
+      <strong>ဒီစက်မှာ မြန်မာအသံ (my-MM) မတွေ့သေးပါ။</strong>
+      <p>စက်ရဲ့ မူရင်းအသံနဲ့ ဖွင့်ပေးပါမယ်။ မြန်မာအသံ ရဖို့ ဖုန်း / ကွန်ပျူတာ Settings → Voice / Text-to-Speech မှာ မြန်မာ (Burmese) အသံ ထည့်ထားလား စစ်ကြည့်ပါ။ အသံပုံစံတိုင်းကို pitch နဲ့ အမြန်နှုန်းခွဲပြီး ထူးခြားအောင် ချိန်ထားပါတယ်။</p>
+    </div>
+
+    <label for="engineVoice">စက်ထဲက အခြေခံအသံ <span class="hint">— မြန်မာအသံ ရှိရင် အဲဒါကို သုံးပါမယ်</span></label>
+    <select id="engineVoice"><option value="">အသံတွေ ရှာနေတယ်…</option></select>
+
+    <label for="voiceSelect">အသံရွေးပါ <span class="hint">— မြန်မာအသံများသာ</span></label>
+    <select id="voiceSelect"></select>
+    <div class="voice-meta" id="voiceMeta" aria-live="polite"></div>
+
+    <label for="speed">အမြန်နှုန်း</label>
+    <div class="speed-row">
+      <input type="range" id="speed" min="0.5" max="4" step="0.25" value="1" />
+      <span class="speed-val" id="speedVal">1.00x</span>
+    </div>
+    <p class="hint" style="margin:4px 0 0">မြန်ချင်ရင် ညာဘက်၊ နှေးချင်ရင် ဘယ်ဘက် ဆွဲပါ။ 4x အထိ ရပါတယ်။</p>
+
+    <label for="script">စာသား</label>
+    <textarea id="script" maxlength="20000" placeholder="ဒီမှာ စာရိုက်ပါ — ဥပမာ ဇာတ်လမ်း၊ သတင်း၊ စာအုပ် အပိုင်းအစ…">မင်္ဂလာပါ။ ဒီနေ့ ဇာတ်လမ်းလေးကို အတူတူ နားထောင်ကြရအောင်။ ရွာကလေးတစ်ရွာမှာ မိသားစုတစ်စုက နေ့တိုင်း လယ်ထဲသွားကြတယ်။ တစ်နေ့တော့ မိုးရွာလာပြီး လမ်းမှာ ရေတွေ တက်လာတယ်။</textarea>
+    <div class="counter"><span id="charCount">0 / 20,000 စာလုံး</span><span id="timeEst">ခန့်မှန်း —</span></div>
+
+    <div class="samples" aria-label="နမူနာစာသားများ">
+      <button type="button" class="chip" data-sample="short">နမူနာ — နှုတ်ဆက်စကား</button>
+      <button type="button" class="chip" data-sample="story">နမူနာ — ဇာတ်လမ်းတို</button>
+      <button type="button" class="chip" data-sample="news">နမူနာ — သတင်းဟန်</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="playBtn">▶ ဖတ်ပြမယ်</button>
+      <button type="button" class="btn btn-ghost" id="pauseBtn" disabled>⏸ ခဏရပ်</button>
+      <button type="button" class="btn btn-ghost" id="stopBtn" disabled>■ ရပ်မယ်</button>
+    </div>
+    <div class="progress" id="progressBox" aria-live="polite">
+      <span id="progressText">ဖွင့်နေတယ်…</span>
+      <div class="bar"><i id="progressBar"></i></div>
+    </div>
+    <p class="hint" id="playHint" style="margin-top:10px">အသံထွက်ဖို့ ဖတ်ပြမယ် ကို နှိပ်ပါ။ အသံပိတ်ထားရင် ဖုန်း အသံဖွင့်ထားလား စစ်ပါ။</p>
+
+    <div class="actions">
+      <button type="button" class="btn btn-amber" id="saveBtn">Library မှာ သိမ်းမယ်</button>
+      <button type="button" class="btn btn-ghost" id="copyBtn">စာသား ကူးမယ်</button>
+      <button type="button" class="btn btn-ghost" id="txtBtn">စာသား (.txt) ဒေါင်းမယ်</button>
+    </div>
+    <p class="hint">“Library မှာ သိမ်းမယ်” က ဒီ tab ထဲမှာပဲ သိမ်းပါတယ် — tab ပိတ်ရင် ပျောက်သွားပါမယ်။</p>
+
+    <div class="clone-box">
+      <h3>ကိုယ်ပိုင်အသံ (Clone) — အသံစမ်းသပ်မှု</h3>
+      <p class="lead">ကိုယ့်အသံ နမူနာကို အသံသွင်း / ဖိုင်တင်ပြီး သိမ်းပါ။ သိမ်းထားတဲ့ အသံက Studio အသံစာရင်းထဲမှာ ပေါ်လာပါမယ်။ <b>ရိုးသားစွာ ပြောရရင်</b> ဒီ public စာမျက်နှာမှာ AI clone အတိအကျ မရသေးပါ — နမူနာရဲ့ pitch ကို တိုင်းပြီး စက်အသံကို အဲဒီ pitch နဲ့ နီးအောင် ချိန်ပေးတာပါ။ အတိအကျ clone လိုရင် server ဗားရှင်းပဲ လိုပါတယ်။</p>
+      <div class="rec-row">
+        <div>
+          <label for="cloneName">အသံနာမည်</label>
+          <input type="text" id="cloneName" placeholder="ဥပမာ — ကျွန်တော့်အသံ" />
+        </div>
+        <div>
+          <label for="cloneFile">အသံဖိုင် တင်မယ် (မဖြစ်မနေ မဟုတ်)</label>
+          <input type="file" id="cloneFile" accept="audio/*" style="padding:10px" />
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="recBtn">● အသံသွင်းမယ်</button>
+        <button type="button" class="btn btn-ghost" id="recStopBtn" disabled>အသံသွင်း ရပ်မယ်</button>
+        <button type="button" class="btn btn-primary" id="cloneSaveBtn" disabled>Clone အဖြစ် သိမ်းမယ်</button>
+      </div>
+      <p class="rec-status" id="recStatus">အသံသွင်းဖို့ ခွင့်ပြုချက် တောင်းပါမယ်။</p>
+      <audio id="cloneAudio" controls hidden></audio>
+      <div class="voice-meta" id="cloneMeta"></div>
+    </div>
+  </section>
+
+  <!-- LINK -->
+  <section class="card" id="panel-link" role="tabpanel" aria-labelledby="tab-link" hidden>
+    <h2>Link ဘာသာပြန် — Link တစ်ခုပဲ လိုပါတယ်</h2>
+    <p class="lead">ဗီဒီယို link တစ်ခုတည်း ထည့်ရုံပဲ — ခေါင်းစဉ် / မှတ်စု ဖောင်ဖြည့်စရာ မလိုပါ။</p>
+    <label for="videoUrl">ဗီဒီယို link</label>
+    <input type="url" id="videoUrl" placeholder="https://www.tiktok.com/… / https://youtu.be/… / Facebook link…" inputmode="url" autocomplete="off" />
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="linkCheckBtn">Link စစ်မယ်</button>
+      <button type="button" class="btn btn-ghost" id="linkOpenBtn" disabled>မူရင်း ဖွင့်ကြည့်မယ်</button>
+    </div>
+    <div id="linkResult"></div>
+
+    <div id="transcriptArea" hidden>
+      <h3>Transcript / Caption ထည့်ပါ</h3>
+      <p class="lead">ဒီ static စာမျက်နှာက TikTok / YouTube ထဲက transcript ကို တိုက်ရိုက် ဖတ်လို့ မရပါ — server ဗားရှင်းမှသာ ရပါတယ်။ ဒါကြောင့် ဗီဒီယိုအောက်က caption / transcript ကို ဒီမှာ ကူးထည့်ပေးပါ။ ကူးထည့်တဲ့ စာသားအတိုင်းပဲ အကျဉ်းချုပ် မူကြမ်း လုပ်ပေးပါမယ် — <b>အပိုအကြောင်းအရာ အသစ် မထည့်ပါ</b>၊ အဆုံးမှာ ပိတ်စာကြောင်းလည်း <b>မထည့်ပါ</b>။</p>
+      <label>ဘာသာစကား ရွေးပါ</label>
+      <div class="seg-lang" role="group" aria-label="ဘာသာစကား">
+        <button type="button" id="langMy" aria-pressed="true">မြန်မာလို အကျဉ်းချုပ်</button>
+        <button type="button" id="langEn" aria-pressed="false">English အကျဉ်းချုပ်</button>
+      </div>
+      <label for="transcript">Transcript / Caption / Description</label>
+      <textarea id="transcript" placeholder="ဗီဒီယိုက စာသား / caption ကို ဒီမှာ ကူးထည့်ပါ…"></textarea>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="recapBtn">အကျဉ်းချုပ် မူကြမ်း လုပ်မယ်</button>
+      </div>
+      <div id="recapOut" hidden>
+        <label for="recapText">အကျဉ်းချုပ် မူကြမ်း — ပြင်လို့ရပါတယ်</label>
+        <textarea id="recapText"></textarea>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="toStudioBtn">Studio မှာ ဖတ်ပြမယ်</button>
+          <button type="button" class="btn btn-amber" id="recapSaveBtn">Library မှာ သိမ်းမယ်</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="card" id="panel-library" role="tabpanel" aria-labelledby="tab-library" hidden>
+    <h2>Library — သိမ်းထားတာများ</h2>
+    <p class="lead">ဒီ tab ထဲမှာပဲ သိမ်းထားပါတယ်။ စာမျက်နှာ ပြန်ဖွင့်ရင် / tab ပိတ်ရင် ပျောက်သွားပါမယ်။</p>
+    <div id="libraryList"><div class="empty">ဘာမှ မသိမ်းထားသေးပါ။ Studio မှာ စာရိုက်ပြီး “Library မှာ သိမ်းမယ်” ကို နှိပ်ပါ။</div></div>
+  </section>
+
+  <!-- BLUR -->
+  <section class="card" aria-labelledby="blurTitle">
+    <h2 id="blurTitle">ဝါးတဲ့ အကွက် — ပုံတစ်ပုံစာ စမ်းသပ်ခြင်း</h2>
+    <p class="lead">မူရင်းပုံ (frame) တစ်ပုံ တင်ပါ။ အကွက်ကို <b>လက်နဲ့ ဆွဲရွှေ့</b>နိုင်ပါတယ်၊ အဖြူစက်လေးကို ဆွဲပြီး <b>ကျုံ့ / ချဲ့</b>နိုင်ပါတယ်၊ “အပေါ်တိုး” နဲ့ အပေါ်ရွှေ့နိုင်ပါတယ်။ အကွက်ထဲက အပိုင်းက live ဝါးနေပါမယ်။ <b>ပုံတစ်ပုံစာပဲ</b> ဖြစ်ပါတယ် — ဗီဒီယိုတစ်ပုဒ်လုံး ဝါးပြီး MP4 ထုတ်တာက server ဗားရှင်းမှ ရပါတယ်။</p>
+    <label for="frameFile">မူရင်းပုံ တင်မယ်</label>
+    <input type="file" id="frameFile" accept="image/*" style="padding:10px;border:1px solid var(--line);border-radius:11px;width:100%;background:var(--surface2)" />
+    <div class="blur-stage" id="blurStage">
+      <p style="color:#fff;padding:20px;text-align:center;margin:0">ပုံမတင်ရသေးပါ — အပေါ်ကနေ ပုံတစ်ပုံ ရွေးပါ။</p>
+      <div class="blur-box" id="blurBox" hidden style="left:20%;top:55%;width:60%;height:26%">
+        <span class="tag">ဝါးမယ့်အကွက် — ဆွဲရွှေ့လို့ရပါတယ်</span>
+        <span class="handle" id="blurHandle" aria-label="အရွယ်အစား ချိန်ရန်"></span>
+      </div>
+    </div>
+    <div class="blur-controls">
+      <button type="button" class="btn btn-small btn-ghost" id="blurUpBtn">↑ အပေါ်တိုး</button>
+      <button type="button" class="btn btn-small btn-ghost" id="blurDownBtn">↓ အောက်တိုး</button>
+      <button type="button" class="btn btn-small btn-ghost" id="blurSmallBtn">အကွက် သေးမယ်</button>
+      <button type="button" class="btn btn-small btn-ghost" id="blurBigBtn">အကွက် ကြီးမယ်</button>
+      <button type="button" class="btn btn-small btn-primary" id="blurDownloadBtn" disabled>ဝါးထားတဲ့ပုံ ဒေါင်းမယ် (PNG)</button>
+    </div>
+    <p class="hint" id="blurInfo">အကွက် အနေအထား — မရွေးရသေးပါ။</p>
+  </section>
+
+  <footer>
+    <p><b>ဒီ public စာမျက်နှာအကြောင်း — ရိုးသားစွာ</b></p>
+    <p>ဒါက server မရှိတဲ့ static စာမျက်နှာပါ။ အသံက ဖုန်း / ကွန်ပျူတာထဲက စက်အသံ (device voice) ကို pitch နဲ့ အမြန်နှုန်း ချိန်ပြီး သုံးတာပါ — Google Studio / Azure ရဲ့ အသံအစစ်၊ AI clone အတိအကျ၊ link ကနေ transcript အလိုအလျောက် ဖတ်တာ၊ ဗီဒီယို dub + ပေါင်းတာ၊ စာတန်း burn-in တို့ ဒီမှာ မပါပါ။ အဲဒါတွေက server ဗားရှင်း (Muse Library ထဲက Voice Application) မှာသာ ရပါတယ်။</p>
+    <p>ဗီဒီယို ၂ နာရီခွဲအထိ အပိုင်းလိုက် dub + ပေါင်းတာကလည်း server မှာ လုပ်ရတာပါ — ဒီစာမျက်နှာက အပိုင်းခွဲအစီအစဉ်နဲ့ စာတန်း (.srt) ကို ကြိုတင်ပြင်ပေးနိုင်ပါတယ်။ Telegram ပို့တာမျိုး ဒီစာမျက်နှာမှာ မပါပါ။</p>
+  </footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var synth=window.speechSynthesis||null;
+var voices=[];
+var currentPreset=null, chunks=[], chunkIndex=0, speaking=false, paused=false;
+var targetLang="my";
+var library=[];
+var cloneBlob=null, clonePitch=null, cloneUrl=null, mediaRecorder=null, recChunks=[];
+var frameImg=null, frameObjectUrl=null;
+
+var PRESETS=[
+ {id:"f1",group:"အမျိုးသမီး — မြန်မာ",name:"မသန်း",style:"ကြည်လင် · ရှင်းလင်း",pitch:1.05,rate:1.00},
+ {id:"f2",group:"အမျိုးသမီး — မြန်မာ",name:"မအေး",style:"နူးညံ့ · နွေးထွေး",pitch:0.95,rate:0.95},
+ {id:"f3",group:"အမျိုးသမီး — မြန်မာ",name:"မသီတာ",style:"တက်ကြွ · လန်းဆန်း",pitch:1.15,rate:1.08},
+ {id:"f4",group:"အမျိုးသမီး — မြန်မာ",name:"မနှင်း",style:"အေးဆေး · ငြိမ်",pitch:0.90,rate:0.90},
+ {id:"f5",group:"အမျိုးသမီး — မြန်မာ",name:"မပို",style:"ဇာတ်လမ်းပြောဟန်",pitch:1.00,rate:0.92},
+ {id:"f6",group:"အမျိုးသမီး — မြန်မာ",name:"မခိုင်",style:"ပြတ်သား · ကြည်",pitch:1.08,rate:1.05},
+ {id:"f7",group:"အမျိုးသမီး — မြန်မာ",name:"မစု",style:"ချိုသာ · နူးညံ့",pitch:1.12,rate:0.98},
+ {id:"f8",group:"အမျိုးသမီး — မြန်မာ",name:"မရီ",style:"တည်ငြိမ် · ပုံမှန်",pitch:0.92,rate:1.00},
+ {id:"f9",group:"အမျိုးသမီး — မြန်မာ",name:"မလှ",style:"ရှင်းလင်း · သန့်",pitch:1.00,rate:1.02},
+ {id:"f10",group:"အမျိုးသမီး — မြန်မာ",name:"မဖြူ",style:"နွေးထွေး · အေး",pitch:0.97,rate:0.94},
+ {id:"s1",group:"Google · Studio ပုံစံ — မြန်မာ (ချိန်ထားသော စက်အသံ)",name:"Studio ကြည်လင်",style:"ကြည် · studio ဟန်",pitch:1.06,rate:1.04},
+ {id:"s2",group:"Google · Studio ပုံစံ — မြန်မာ (ချိန်ထားသော စက်အသံ)",name:"Studio နွေးထွေး",style:"နွေး · studio ဟန်",pitch:0.94,rate:0.96},
+ {id:"s3",group:"Google · Studio ပုံစံ — မြန်မာ (ချိန်ထားသော စက်အသံ)",name:"Studio တက်ကြွ",style:"တက်ကြွ · studio ဟန်",pitch:1.18,rate:1.10},
+ {id:"nilar",group:"Azure အမည်ဖြင့် — မြန်မာ (စက်အသံ အနီးစပ်ဆုံး)",name:"Nilar",style:"အမျိုးသမီး · နူးညံ့",pitch:1.02,rate:1.00},
+ {id:"thiha",group:"Azure အမည်ဖြင့် — မြန်မာ (စက်အသံ အနီးစပ်ဆုံး)",name:"Thiha",style:"အမျိုးသား · တည်ငြိမ်",pitch:0.78,rate:0.98},
+ {id:"m1",group:"အမျိုးသား — မြန်မာ",name:"ကိုဇော်",style:"နိမ့် · ယောက်ျားဟန်",pitch:0.72,rate:0.97},
+ {id:"m2",group:"အမျိုးသား — မြန်မာ",name:"ကိုကျော်",style:"ပိုနိမ့် · ယောက်ျားဟန်",pitch:0.70,rate:0.96},
+ {id:"m3",group:"အမျိုးသား — မြန်မာ",name:"ကိုထက်",style:"အနိမ့်ဆုံး · ယောက်ျားဟန်",pitch:0.68,rate:0.95}
+];
+var SAMPLES={
+ short:"မင်္ဂလာပါ။ ဒီနေ့ ဇာတ်လမ်းလေးကို အတူတူ နားထောင်ကြရအောင်။",
+ story:"တစ်ခါတုန်းက ရွာကလေးတစ်ရွာမှာ လယ်သမားတစ်ဦး နေထိုင်တယ်။ သူက နေ့တိုင်း လယ်ထဲ စောစောသွားပြီး ညနေမှ ပြန်လာတယ်။ မိုးရွာတဲ့နေ့တွေမှာတော့ လမ်းမှာ ရေတွေ တက်လာတတ်တယ်။",
+ news:"ဒီနေ့ မနက်ပိုင်းမှာ မိုးရွာသွန်းမှု ရှိခဲ့ပြီး နေ့လည်ပိုင်းမှာတော့ နေပြန်ပွင့်လာပါတယ်။ လမ်းပန်းဆက်သွယ်ရေး ပုံမှန်အတိုင်း ရှိနေပါတယ်။"
+};
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fmtTime(sec){sec=Math.max(0,Math.round(sec));var m=Math.floor(sec/60),s=sec%60;return m+":"+String(s).padStart(2,"0")}
+
+function buildVoiceSelect(){
+  var sel=$("voiceSelect"); sel.innerHTML="";
+  var groups={};
+  PRESETS.forEach(function(p){ (groups[p.group]=groups[p.group]||[]).push(p); });
+  Object.keys(groups).forEach(function(g){
+    var og=document.createElement("optgroup"); og.label=g;
+    groups[g].forEach(function(p){
+      var o=document.createElement("option"); o.value=p.id; o.textContent=p.name+" — "+p.style; og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  var saved=JSON.parse(JSON.stringify(PRESETS));
+  sel.addEventListener("change",updateMeta);
+  updateMeta();
+}
+function findPreset(id){for(var i=0;i<PRESETS.length;i++) if(PRESETS[i].id===id) return PRESETS[i]; return PRESETS[0]}
+function updateMeta(){
+  var p=findPreset($("voiceSelect").value); currentPreset=p;
+  var kind=p.pitch>=1.05?"အသံမြင့်":(p.pitch<=0.8?"အသံနိမ့်":"အသံအလယ်");
+  $("voiceMeta").innerHTML="<span>အသံ — <b>"+esc(p.name)+"</b></span><span>ဟန် — "+esc(p.style)+"</span><span>Pitch — <b>"+p.pitch.toFixed(2)+"</b> ("+kind+")</span><span>အခြေခံအမြန်နှုန်း — <b>"+p.rate.toFixed(2)+"x</b></span>";
+  updateEstimate();
+}
+function loadVoices(){
+  if(!synth) return;
+  voices=synth.getVoices()||[];
+  var sel=$("engineVoice"); sel.innerHTML="";
+  var myVoices=voices.filter(function(v){return /^(my|my-MM)/i.test(v.lang)||/burmese|myanmar/i.test(v.name)});
+  var list=myVoices.length?myVoices:voices;
+  if(!list.length){sel.innerHTML="<option value=''>စက်မှာ အသံ မတွေ့ပါ</option>"; $("voiceWarn").hidden=false; return;}
+  list.forEach(function(v,i){
+    var o=document.createElement("option"); o.value=v.name; o.textContent=v.name+" ("+v.lang+")"+(v.default?" — မူရင်း":""); sel.appendChild(o);
+  });
+  if(myVoices.length){ sel.value=myVoices[0].name; $("voiceWarn").hidden=true; }
+  else { $("voiceWarn").hidden=false; }
+  if(!sel.value && list[0]) sel.value=list[0].name;
+}
+if(synth){ loadVoices(); if(typeof synth.onvoiceschanged!=="undefined") synth.onvoiceschanged=loadVoices; setTimeout(loadVoices,600); }
+else { $("voiceWarn").hidden=false; $("voiceWarn").innerHTML="<strong>ဒီဘရောက်ဇာမှာ အသံဖတ်ပြခြင်း (speech synthesis) မရပါ။</strong><p>Chrome / Safari အသစ်မှာ ဖွင့်ကြည့်ပါ။</p>"; }
+
+function updateEstimate(){
+  var n=$("script").value.length;
+  $("charCount").textContent=n.toLocaleString()+" / 20,000 စာလုံး";
+  $("charCount").className=n>20000?"over":"";
+  var speed=parseFloat($("speed").value)||1;
+  var p=currentPreset||PRESETS[0];
+  var eff=p.rate*speed;
+  var mins=n>0? n/(720*eff):0;
+  $("timeEst").textContent=n?("ခန့်မှန်း "+fmtTime(mins*60)+" ("+eff.toFixed(2)+"x)"): "ခန့်မှန်း —";
+}
+$("script").addEventListener("input",updateEstimate);
+$("speed").addEventListener("input",function(){
+  $("speedVal").textContent=parseFloat(this.value).toFixed(2)+"x"; updateEstimate();
+});
+document.querySelectorAll("[data-sample]").forEach(function(b){
+  b.addEventListener("click",function(){ $("script").value=SAMPLES[b.getAttribute("data-sample")]; updateEstimate(); $("script").focus(); });
+});
+
+function splitChunks(text){
+  var parts=text.replace(/\r/g,"").split(/(?<=[။.!?\n])\s+/);
+  var out=[];
+  parts.forEach(function(p){
+    p=p.trim(); if(!p) return;
+    while(p.length>700){
+      var cut=p.lastIndexOf(" ",700); if(cut<200) cut=700;
+      out.push(p.slice(0,cut)); p=p.slice(cut).trim();
+    }
+    if(p) out.push(p);
+  });
+  return out.length?out:[text];
+}
+function setProgress(on,txt,pct){
+  var box=$("progressBox");
+  box.classList.toggle("on",!!on);
+  if(txt) $("progressText").textContent=txt;
+  $("progressBar").style.width=(pct||0)+"%";
+}
+function speakChunk(){
+  if(chunkIndex>=chunks.length){ speaking=false; paused=false; $("playBtn").disabled=false; $("pauseBtn").disabled=true; $("stopBtn").disabled=true; setProgress(false); $("playHint").textContent="ဖတ်ပြီးပါပြီ။"; return; }
+  var p=currentPreset;
+  var speed=parseFloat($("speed").value)||1;
+  var u=new SpeechSynthesisUtterance(chunks[chunkIndex]);
+  var vname=$("engineVoice").value;
+  var v=null; voices.forEach(function(x){ if(x.name===vname) v=x; });
+  if(v) u.voice=v;
+  u.lang=(v&&v.lang)||"my-MM";
+  u.pitch=Math.min(2,Math.max(0,p.pitch));
+  u.rate=Math.min(10,Math.max(0.5,p.rate*speed));
+  u.volume=1;
+  u.onend=function(){ chunkIndex++; setProgress(true,"အပိုင်း "+Math.min(chunkIndex,chunks.length)+" / "+chunks.length+" — ဖွင့်နေတယ်…",chunks.length?chunkIndex/chunks.length*100:0); speakChunk(); };
+  u.onerror=function(){ speaking=false; $("playBtn").disabled=false; $("pauseBtn").disabled=true; $("stopBtn").disabled=true; setProgress(false); $("playHint").textContent="အသံဖွင့်ရာမှာ အမှားရှိပါတယ် — ဖုန်း အသံဖွင့်ထားလား၊ မြန်မာအသံ ရှိလား ပြန်စစ်ပါ။"; };
+  setProgress(true,"အပိုင်း "+(chunkIndex+1)+" / "+chunks.length+" — ဖွင့်နေတယ်…",chunks.length?chunkIndex/chunks.length*100:0);
+  synth.speak(u);
+}
+$("playBtn").addEventListener("click",function(){
+  if(!synth){ $("playHint").textContent="ဒီဘရောက်ဇာမှာ အသံဖွင့်လို့ မရပါ။"; return; }
+  var text=$("script").value.trim();
+  if(!text){ $("playHint").textContent="စာသား အရင် ရိုက်ပါ။"; $("script").focus(); return; }
+  synth.cancel();
+  chunks=splitChunks(text); chunkIndex=0; speaking=true; paused=false;
+  $("playBtn").disabled=true; $("pauseBtn").disabled=false; $("pauseBtn").textContent="⏸ ခဏရပ်"; $("stopBtn").disabled=false;
+  $("playHint").textContent="ဖွင့်နေတယ် — "+chunks.length+" ပိုင်း။";
+  speakChunk();
+});
+$("pauseBtn").addEventListener("click",function(){
+  if(!synth) return;
+  if(synth.paused){ synth.resume(); paused=false; this.textContent="⏸ ခဏရပ်"; }
+  else { synth.pause(); paused=true; this.textContent="▶ ဆက်ဖွင့်မယ်"; }
+});
+$("stopBtn").addEventListener("click",function(){
+  if(synth) synth.cancel();
+  speaking=false; paused=false; $("playBtn").disabled=false; $("pauseBtn").disabled=true; $("stopBtn").disabled=true; setProgress(false);
+  $("playHint").textContent="ရပ်လိုက်ပါပြီ။";
+});
+
+function downloadBlob(blob,name){
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },800);
+}
+function currentItem(type){
+  return {type:type, voice:currentPreset?currentPreset.name:"", text:$("script").value.trim(), speed:parseFloat($("speed").value)||1, at:new Date()};
+}
+$("copyBtn").addEventListener("click",function(){
+  var t=$("script").value;
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){ $("playHint").textContent="စာသား ကူးပြီးပါပြီ။"; },function(){ $("playHint").textContent="ကူးလို့ မရပါ — စာသားကို ရွေးပြီး ကိုယ်တိုင် ကူးပါ။"; }); }
+  else { $("script").select(); document.execCommand("copy"); $("playHint").textContent="စာသား ကူးပြီးပါပြီ။"; }
+});
+$("txtBtn").addEventListener("click",function(){
+  var t=$("script").value.trim(); if(!t){ $("playHint").textContent="ဒေါင်းဖို့ စာသား မရှိသေးပါ။"; return; }
+  downloadBlob(new Blob([t],{type:"text/plain;charset=utf-8"}),"script.txt");
+});
+$("saveBtn").addEventListener("click",function(){
+  var t=$("script").value.trim(); if(!t){ $("playHint").textContent="သိမ်းဖို့ စာသား အရင် ရိုက်ပါ။"; return; }
+  library.unshift({type:"studio",voice:currentPreset.name,text:t,speed:parseFloat($("speed").value)||1,at:new Date().toLocaleString("my-MM")});
+  renderLibrary(); switchTab("library");
+});
+
+/* Tabs */
+function switchTab(name){
+  ["studio","link","library"].forEach(function(n){
+    $("tab-"+n).setAttribute("aria-selected",n===name?"true":"false");
+    $("panel-"+n).hidden=n!==name;
+  });
+}
+["studio","link","library"].forEach(function(n){ $("tab-"+n).addEventListener("click",function(){ switchTab(n); }); });
+
+/* Clone */
+function estimatePitch(buffer,sampleRate){
+  try{
+    var data=buffer.getChannelData(0);
+    var start=Math.floor(data.length*0.2), len=Math.min(8192,data.length-start);
+    var bestLag=-1,bestCorr=0;
+    for(var lag=40;lag<600;lag++){
+      var c=0;
+      for(var i=0;i<len-lag;i++) c+=data[start+i]*data[start+i+lag];
+      if(c>bestCorr){bestCorr=c;bestLag=lag;}
+    }
+    if(bestLag>0) return Math.round(sampleRate/bestLag);
+  }catch(e){}
+  return null;
+}
+$("recBtn").addEventListener("click",function(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ $("recStatus").textContent="ဒီဘရောက်ဇာမှာ အသံသွင်းလို့ မရပါ။ အသံဖိုင် တင်တာကို သုံးပါ။"; return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    recChunks=[]; mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=function(e){ if(e.data.size) recChunks.push(e.data); };
+    mediaRecorder.onstop=function(){ stream.getTracks().forEach(function(t){t.stop();}); cloneBlob=new Blob(recChunks,{type:mediaRecorder.mimeType||"audio/webm"}); finishCloneBlob(); };
+    mediaRecorder.start(); $("recStatus").textContent="အသံသွင်းနေတယ်… မြန်မာလို ရှင်းရှင်းလင်းလင်း ၁၀–၂၀ စက္ကန့် ပြောပါ။";
+    $("recBtn").disabled=true; $("recStopBtn").disabled=false;
+  }).catch(function(){ $("recStatus").textContent="မိုက်ခရိုဖုန်း ခွင့်ပြုချက် မရပါ — ဘရောက်ဇာ ခွင့်ပြုချက်ကို ဖွင့်ပြီး ပြန်စမ်းပါ။"; });
+});
+$("recStopBtn").addEventListener("click",function(){
+  if(mediaRecorder&&mediaRecorder.state!=="inactive") mediaRecorder.stop();
+  $("recBtn").disabled=false; $("recStopBtn").disabled=true; $("recStatus").textContent="အသံသွင်းတာ ရပ်ပါပြီ — တိုင်းတာနေတယ်…";
+});
+$("cloneFile").addEventListener("change",function(){
+  var f=this.files&&this.files[0]; if(!f) return; cloneBlob=f; finishCloneBlob();
+});
+function finishCloneBlob(){
+  if(!cloneBlob) return;
+  if(cloneUrl) URL.revokeObjectURL(cloneUrl);
+  cloneUrl=URL.createObjectURL(cloneBlob);
+  var audio=$("cloneAudio"); audio.src=cloneUrl; audio.hidden=false;
+  $("cloneSaveBtn").disabled=false; $("recStatus").textContent="နမူနာ ရပါပြီ — အောက်မှာ ဖွင့်ကြည့်ပြီး နာမည်ပေးကာ သိမ်းပါ။";
+  var ctx=null;
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){
+      ctx=new AC();
+      cloneBlob.arrayBuffer().then(function(ab){ return ctx.decodeAudioData(ab); }).then(function(buf){
+        clonePitch=estimatePitch(buf,buf.sampleRate);
+        $("cloneMeta").innerHTML=clonePitch?("<span>တိုင်းထားသော pitch — <b>"+clonePitch+" Hz</b></span><span>အခြေအနေ — pitch-matching ပုံစံဖြင့် သိမ်းမယ်</span>"):("<span>Pitch တိုင်းလို့ မရပါ — မူရင်း pitch (1.00) နဲ့ သိမ်းမယ်</span>");
+        if(ctx) ctx.close();
+      }).catch(function(){ $("cloneMeta").innerHTML="<span>Pitch တိုင်းလို့ မရပါ — မူရင်း pitch နဲ့ သိမ်းမယ်</span>"; });
+    }
+  }catch(e){ $("cloneMeta").innerHTML="<span>Pitch တိုင်းလို့ မရပါ — မူရင်း pitch နဲ့ သိမ်းမယ်</span>"; }
+}
+$("cloneSaveBtn").addEventListener("click",function(){
+  var name=$("cloneName").value.trim()||"ကိုယ်ပိုင်အသံ";
+  var pitch=clonePitch?Math.min(1.3,Math.max(0.6,clonePitch/210)):1.0;
+  var id="clone-"+Date.now();
+  PRESETS.push({id:id,group:"ကိုယ်ပိုင်အသံ (Clone — pitch-matching)",name:name,style:"နမူနာ pitch "+(clonePitch?clonePitch+" Hz":"မတိုင်းရ"),pitch:Math.round(pitch*100)/100,rate:1.0});
+  var sel=$("voiceSelect"); sel.innerHTML=""; buildVoiceSelect(); sel.value=id; updateMeta();
+  $("recStatus").textContent="“"+name+"” ကို သိမ်းပြီးပါပြီ — အသံစာရင်းမှာ ရွေးထားပါတယ်။ နမူနာအသံကိုလည်း အပေါ်က player မှာ ဖွင့်နိုင်ပါတယ်။";
+  $("cloneName").value="";
+});
+
+/* Link */
+var currentLink=null;
+$("linkCheckBtn").addEventListener("click",function(){
+  var url=$("videoUrl").value.trim();
+  var out=$("linkResult");
+  if(!/^https?:\/\//i.test(url)){ out.innerHTML='<div class="notice err"><strong>Link မမှန်ပါ။</strong><p>https:// နဲ့ စတဲ့ ဗီဒီယို link အပြည့်အစုံ ထည့်ပါ။ ဖတ်လို့မရတဲ့ link ဆိုရင် အဖြေအတု မထုတ်ဘဲ အမှားပြပါမယ်။</p></div>'; $("transcriptArea").hidden=true; return; }
+  var host=""; try{ host=new URL(url).hostname.replace(/^www\./,""); }catch(e){}
+  var platform=/tiktok/i.test(host)?"TikTok":/youtube|youtu\.be/i.test(host)?"YouTube":/facebook|fb\.watch/i.test(host)?"Facebook":/instagram/i.test(host)?"Instagram":host||"အခြား";
+  currentLink={url:url,platform:platform};
+  out.innerHTML='<div class="notice ok"><strong>Link မှန်ပါတယ် — '+esc(platform)+'</strong><p>'+esc(url)+'</p><p>ခေါင်းစဉ်နဲ့ transcript ကို ဒီစာမျက်နှာက တိုက်ရိုက် ဖတ်လို့ မရပါ။ အောက်မှာ transcript ကူးထည့်ပြီး အကျဉ်းချုပ် မူကြမ်း လုပ်ပါ။ မူရင်းကို ဖွင့်ကြည့်လို့ရပါတယ်။</p></div>';
+  $("linkOpenBtn").disabled=false; $("transcriptArea").hidden=false;
+  library.unshift({type:"link",voice:"",text:"",url:url,platform:platform,at:new Date().toLocaleString("my-MM")});
+  renderLibrary();
+});
+$("linkOpenBtn").addEventListener("click",function(){ if(currentLink) window.open(currentLink.url,"_blank","noopener"); });
+$("langMy").addEventListener("click",function(){ targetLang="my"; $("langMy").setAttribute("aria-pressed","true"); $("langEn").setAttribute("aria-pressed","false"); });
+$("langEn").addEventListener("click",function(){ targetLang="en"; $("langEn").setAttribute("aria-pressed","true"); $("langMy").setAttribute("aria-pressed","false"); });
+$("recapBtn").addEventListener("click",function(){
+  var raw=$("transcript").value.trim();
+  var out=$("recapOut");
+  if(!raw){ $("linkResult").innerHTML='<div class="notice err"><strong>Transcript မရှိသေးပါ။</strong><p>ဗီဒီယိုအောက်က caption / transcript ကို ကူးထည့်ပေးမှ အကျဉ်းချုပ် လုပ်လို့ရပါတယ်။ စာသား မရှိဘဲ အကျဉ်းချုပ် အတု မထုတ်ပါ။</p></div>'; out.hidden=true; return; }
+  var cleaned=raw.replace(/\[?\d{1,2}:\d{2}(:\d{2})?\]?/g," ").replace(/\s+/g," ").trim();
+  var sentences=cleaned.split(/(?<=[။.!?])\s+/).map(function(s){return s.trim()}).filter(Boolean);
+  var seen={}, dedup=[];
+  sentences.forEach(function(s){ var k=s.toLowerCase(); if(!seen[k]){ seen[k]=1; dedup.push(s); } });
+  var draft=dedup.join(" ");
+  if(targetLang==="en"){
+    draft=draft; /* no fake translation: keep source wording for user to edit */
+  }
+  $("recapText").value=draft;
+  out.hidden=false;
+  $("linkResult").innerHTML='<div class="notice ok"><strong>အကျဉ်းချုပ် မူကြမ်း ရပါပြီ။</strong><p>'+(targetLang==="en"?"English ဘာသာပြန်ကို ဒီစာမျက်နှာက အလိုအလျောက် မလုပ်နိုင်လို့ မူရင်းစာသားကို မူကြမ်းအဖြစ် ပေးထားပါတယ် — လိုအပ်ရင် ဒီမှာ ပြင်ပြီး Studio မှာ ဖတ်ပြပါ။":"မူရင်းစာသားအတိုင်း အပိုမထည့်ဘဲ ပြင်ဆင်ထားပါတယ်။ အဆုံးပိတ်စာကြောင်း မပါပါ။")+'</p></div>';
+});
+$("toStudioBtn").addEventListener("click",function(){
+  $("script").value=$("recapText").value.trim(); updateEstimate(); switchTab("studio"); window.scrollTo({top:0,behavior:"smooth"});
+});
+$("recapSaveBtn").addEventListener("click",function(){
+  var t=$("recapText").value.trim(); if(!t) return;
+  library.unshift({type:"recap",voice:currentPreset?currentPreset.name:"",text:t,url:currentLink?currentLink.url:"",platform:currentLink?currentLink.platform:"",at:new Date().toLocaleString("my-MM")});
+  renderLibrary(); switchTab("library");
+});
+
+/* Library + SRT + video plan */
+function estSeconds(text,speed){ return text.length/(720*(speed||1))*60; }
+function makeSRT(text,speed){
+  var segs=text.match(/.{1,120}(\s|$)/g)||[text];
+  var t=0, out=[];
+  segs.forEach(function(seg,i){
+    var dur=Math.max(1.2,seg.trim().length/(720*(speed||1))*60);
+    out.push((i+1)+"\n"+srtTime(t)+" --> "+srtTime(t+dur)+"\n"+seg.trim()+"\n");
+    t+=dur;
+  });
+  return out.join("\n");
+}
+function srtTime(sec){
+  var ms=Math.round(sec*1000), h=Math.floor(ms/3600000), m=Math.floor(ms%3600000/60000), s=Math.floor(ms%60000/1000), mm=ms%1000;
+  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+","+String(mm).padStart(3,"0");
+}
+function renderLibrary(){
+  $("libCount").textContent=library.length;
+  var list=$("libraryList");
+  if(!library.length){ list.innerHTML='<div class="empty">ဘာမှ မသိမ်းထားသေးပါ။ Studio မှာ စာရိုက်ပြီး “Library မှာ သိမ်းမယ်” ကို နှိပ်ပါ။</div>'; return; }
+  list.innerHTML="";
+  library.forEach(function(item,idx){
+    var div=document.createElement("div"); div.className="lib-item";
+    var title=item.type==="link"?"Link — "+item.platform:(item.type==="recap"?"အကျဉ်းချုပ် — "+(item.platform||""):"Studio — "+item.voice);
+    var secs=item.text?estSeconds(item.text,item.speed||1):0;
+    var parts=item.text?Math.max(1,Math.ceil(item.text.length/3000)):0;
+    div.innerHTML="<h3>"+esc(title)+"</h3><p class='meta'>"+esc(item.at||"")+(item.text?" · "+item.text.length.toLocaleString()+" စာလုံး · ခန့်မှန်း "+fmtTime(secs):"")+"</p>"+
+      (item.url?"<p class='meta'><a href='"+esc(item.url)+"' target='_blank' rel='noopener'>"+esc(item.url)+"</a></p>":"")+
+      (item.text?"<p class='excerpt'>"+esc(item.text.slice(0,220))+(item.text.length>220?"…":"")+"</p>":"")+
+      "<div class='lib-actions'></div>"+
+      (item.text?"<div class='plan'><b>ဗီဒီယိုအစီအစဉ် (အပိုင်းလိုက်)</b><table><tr><th>အပိုင်း</th><th>စာလုံး</th><th>ခန့်မှန်း</th><th>အခြေအနေ</th></tr>"+
+        Array.from({length:Math.min(parts,50)},function(_,i){
+          var chunk=item.text.slice(i*3000,(i+1)*3000);
+          return "<tr><td>"+(i+1)+" / "+parts+"</td><td>"+chunk.length.toLocaleString()+"</td><td>"+fmtTime(estSeconds(chunk,item.speed||1))+"</td><td>မထုတ်ရသေး</td></tr>";
+        }).join("")+"</table><p class='hint'>အပိုင်း "+parts+" ခု — စုစုပေါင်း ခန့်မှန်း "+fmtTime(secs)+". အပိုင်းလိုက် dub + တစ်ပုဒ်ထဲ ပေါင်းတာက server ဗားရှင်းမှ ရပါတယ်။ ဒီမှာ စာတန်း (.srt) နဲ့ စာသားကို ဒေါင်းလို့ရပါတယ်။ ၂ နာရီခွဲအထိ ဆိုရင် အပိုင်း ~၅၀ အထိ ရှိနိုင်ပါတယ်။</p></div>":"");
+    var acts=div.querySelector(".lib-actions");
+    function addBtn(label,cls,fn){ var b=document.createElement("button"); b.type="button"; b.className="btn btn-small "+cls; b.textContent=label; b.addEventListener("click",fn); acts.appendChild(b); }
+    if(item.text){
+      addBtn("▶ ဖတ်ပြမယ်","btn-ghost",function(){ $("script").value=item.text; var pr=findPresetByName(item.voice); if(pr){ $("voiceSelect").value=pr.id; updateMeta(); } updateEstimate(); switchTab("studio"); });
+      addBtn("စာတန်း (.srt)","btn-ghost",function(){ downloadBlob(new Blob([makeSRT(item.text,item.speed||1)],{type:"text/plain;charset=utf-8"}),"subtitles.srt"); });
+      addBtn("စာသား (.txt)","btn-ghost",function(){ downloadBlob(new Blob([item.text],{type:"text/plain;charset=utf-8"}),"script.txt"); });
+    }
+    if(item.url) addBtn("မူရင်း ဖွင့်မယ်","btn-ghost",function(){ window.open(item.url,"_blank","noopener"); });
+    addBtn("ဖျက်မယ်","btn-danger",function(){ library.splice(idx,1); renderLibrary(); });
+    list.appendChild(div);
+  });
+}
+function findPresetByName(name){ for(var i=0;i<PRESETS.length;i++) if(PRESETS[i].name===name) return PRESETS[i]; return null; }
+
+/* Blur editor */
+var blurBox=$("blurBox"), stage=$("blurStage");
+function blurPct(){
+  if(!frameImg) return null;
+  var sr=stage.getBoundingClientRect(), br=blurBox.getBoundingClientRect();
+  return {x:(br.left-sr.left)/sr.width*100,y:(br.top-sr.top)/sr.height*100,w:br.width/sr.width*100,h:br.height/sr.height*100};
+}
+function updateBlurInfo(){
+  var p=blurPct();
+  $("blurInfo").textContent=p?("အကွက် အနေအထား — ဘယ် "+p.x.toFixed(0)+"%, အပေါ် "+p.y.toFixed(0)+"%, အကျယ် "+p.w.toFixed(0)+"%, အမြင့် "+p.h.toFixed(0)+"%"):"အကွက် အနေအထား — မရွေးရသေးပါ။";
+}
+$("frameFile").addEventListener("change",function(){
+  var f=this.files&&this.files[0]; if(!f) return;
+  if(frameObjectUrl) URL.revokeObjectURL(frameObjectUrl);
+  frameObjectUrl=URL.createObjectURL(f);
+  var img=new Image();
+  img.onload=function(){
+    frameImg=img;
+    stage.querySelectorAll("img,p").forEach(function(n){ if(n!==blurBox) n.remove(); });
+    img.alt="မူရင်းပုံ — ဝါးမယ့်အကွက် ရွေးရန်"; img.style.maxHeight="420px";
+    stage.insertBefore(img,blurBox);
+    blurBox.hidden=false; $("blurDownloadBtn").disabled=false;
+    blurBox.style.left="20%"; blurBox.style.top="55%"; blurBox.style.width="60%"; blurBox.style.height="26%";
+    updateBlurInfo();
+  };
+  img.src=frameObjectUrl;
+});
+function moveBlur(dx,dy){
+  var p=blurPct(); if(!p) return;
+  var nx=Math.min(90,Math.max(0,p.x+dx)), ny=Math.min(90,Math.max(0,p.y+dy));
+  blurBox.style.left=nx+"%"; blurBox.style.top=ny+"%"; updateBlurInfo();
+}
+$("blurUpBtn").addEventListener("click",function(){ moveBlur(0,-8); });
+$("blurDownBtn").addEventListener("click",function(){ moveBlur(0,8); });
+$("blurSmallBtn").addEventListener("click",function(){
+  var p=blurPct(); if(!p) return;
+  blurBox.style.width=Math.max(10,p.w*0.85)+"%"; blurBox.style.height=Math.max(8,p.h*0.85)+"%"; updateBlurInfo();
+});
+$("blurBigBtn").addEventListener("click",function(){
+  var p=blurPct(); if(!p) return;
+  blurBox.style.width=Math.min(95,p.w*1.18)+"%"; blurBox.style.height=Math.min(90,p.h*1.18)+"%"; updateBlurInfo();
+});
+(function(){
+  var dragging=false,resizing=false,startX=0,startY=0,startL=0,startT=0,startW=0,startH=0;
+  function pos(e){ var r=stage.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*100,y:(e.clientY-r.top)/r.height*100}; }
+  blurBox.addEventListener("pointerdown",function(e){
+    if(!frameImg) return;
+    var isHandle=e.target===$("blurHandle"); resizing=isHandle; dragging=!isHandle;
+    startX=e.clientX; startY=e.clientY;
+    var p=blurPct(); startL=p.x; startT=p.y; startW=p.w; startH=p.h;
+    blurBox.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  blurBox.addEventListener("pointermove",function(e){
+    if(!dragging&&!resizing) return;
+    var r=stage.getBoundingClientRect();
+    var dx=(e.clientX-startX)/r.width*100, dy=(e.clientY-startY)/r.height*100;
+    if(dragging){ blurBox.style.left=Math.min(90,Math.max(0,startL+dx))+"%"; blurBox.style.top=Math.min(90,Math.max(0,startT+dy))+"%"; }
+    else { blurBox.style.width=Math.min(95,Math.max(10,startW+dx))+"%"; blurBox.style.height=Math.min(90,Math.max(8,startH+dy))+"%"; }
+    updateBlurInfo();
+  });
+  blurBox.addEventListener("pointerup",function(){ dragging=false; resizing=false; updateBlurInfo(); });
+  blurBox.addEventListener("pointercancel",function(){ dragging=false; resizing=false; });
+})();
+$("blurDownloadBtn").addEventListener("click",function(){
+  if(!frameImg) return;
+  var p=blurPct(); if(!p) return;
+  var c=document.createElement("canvas"); c.width=frameImg.naturalWidth; c.height=frameImg.naturalHeight;
+  var ctx=c.getContext("2d"); ctx.drawImage(frameImg,0,0);
+  var bx=p.x/100*c.width, by=p.y/100*c.height, bw=p.w/100*c.width, bh=p.h/100*c.height;
+  ctx.save(); ctx.beginPath(); ctx.rect(bx,by,bw,bh); ctx.clip(); ctx.filter="blur(18px)"; ctx.drawImage(frameImg,0,0); ctx.restore();
+  c.toBlob(function(blob){ if(blob) downloadBlob(blob,"blurred-frame.png"); },"image/png");
+});
+
+buildVoiceSelect();
+updateEstimate();
+renderLibrary();
+})();
+</script>
+</body>
+</html>
